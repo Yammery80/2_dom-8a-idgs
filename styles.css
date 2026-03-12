@@ -25,12 +25,12 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
 
 .controls{
   position: absolute;
-  left: 500px;
-  bottom: 40px;
+  left: 12px;
+  bottom: 5px;
   display: flex;
   gap: 8px;
 }
-.control buttom{
+.controls button{
   border: 1px solid var(--line);
   background: rgba(18,27,46,.85);
   color: var(--text);
@@ -39,5 +39,5 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
   cursor: pointer;
 }
 .frame img.fade-out{
-  opacity: 0;
+  opacity: 0  ;
 }
