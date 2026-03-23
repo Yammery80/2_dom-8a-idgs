@@ -24,7 +24,7 @@ let likes = {};
 
 let autoPlayId = null;
 let isPlaying =false;
-const AUTO_TIME =3000; //3 segundos
+const AUTO_TIME =2000; //3 segundos
 
 //Funcion para renderizar las miniaturas
 
@@ -54,11 +54,38 @@ function renderThumbs() {
     heroDesc.textContent = item.desc;
 
     //Actualizar el contador de las imagenes
-    counter.textContent = `${index + 1} / ${data.length}`;
+    updateCounter();
+    //Actualizar el estado del boton de me gusta
+    updateLikeBtn();
+    //Actualizar el estado de las miniaturas
+    updateActiveThumb();
   }
 
 //Actualizar boton de reproduccion
-function updatePlayButton(){}
+function updatePlayButton(){
+  playBtn.textContent = isPlaying ? "⏸" : "▶";
+  playBtn.dataset.state = isPlaying ? "stop" : "play";
+}
+
+function updateCounter(){
+  counter.textContent = `${currentIndex + 1} / ${data.length}`;
+}
+
+function updateActiveThumb(){
+  document.querySelectorAll(".thumb").forEach((thumb, i) => {
+    thumb.classList.toggle("active", i === currentIndex);
+  });
+}
+
+function updateLikeBtn(){
+  const currentItem = data[currentIndex];
+  const isLiked = likes[currentItem.id] === true;
+
+    //Actualizar el botón visualmente
+    likeBtn.textContent = isLiked ? "❤️" : "🤍";
+    likeBtn.classList.toggle("on", isLiked);
+    likeBtn.setAttribute("aria-pressed", isLiked);
+}
 
 //Cambiar la imagen automaticamente
   function changeSlide( nextIndex ){
@@ -91,19 +118,28 @@ function updatePlayButton(){}
 
   }
 
+  function stopAutoplay(){
+    clearInterval(autoPlayId);
+    autoPlayId=null;
+    isPlaying=false;
+    updatePlayButton();
+    
+  }
+
+  function toggleAutoPlay(){
+    if(isPlaying){
+      stopAutoplay();
+    }else{
+      startAutoPlay();
+    }
+  }
 
   //Evento para manejar el clik del boton me gusta
   likeBtn.addEventListener("click", () => {
     const currentItem = data[currentIndex];
     //Cambiar de true a false 
-    likes[currentItem.id] = !likes[currentItem.id];z
-
-    const isLiked = likes[currentItem.id];
-
-    //Actualizar el botón visualmente
-    likeBtn.textContent = isLiked ? "❤️" : "🤍";
-    likeBtn.classList.toggle("on", isLiked);
-    likeBtn.setAttribute("aria-pressed", isLiked);
+    likes[currentItem.id] = !likes[currentItem.id];
+    updateLikeBtn();
   });
 
 //Evento para manejar el clic en las miniaturas
@@ -113,11 +149,25 @@ thumbs.addEventListener("click", (e) => {
   if(!thumb) return; //Si no se hizo clic en una miniatura, salir de la función
 
   //Obtener el índice de la miniatura clicada
-  currentIndex = Number(thumb.dataset.index);
-  //Actualizar el visor principalmente 
-  renderHero(currentIndex);
+  const newIndex = Number(thumb.dataset.index);
+  if(newIndex === currentIndex) return; //Si se hizo clic en la miniatura activa, salir de la función
+  changeSlide(newIndex);
 });
 
+nextBtn.addEventListener("click", nextSlide);
+prevBtn.addEventListener("click", prevSlide);
+playBtn.addEventListener("click", toggleAutoPlay);
+
+//Eventos para el teclado
+document.addEventListener("keydown", (e) => {
+  if(e.key === "ArrowRight"){
+    nextSlide(); 
+  }else if(e.key === "ArrowLeft"){
+    prevSlide();
+  } else if(e.key === " "){
+    toggleAutoPlay();
+  }
+});
 
 renderThumbs();
 renderHero(currentIndex);
